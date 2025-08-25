@@ -63,15 +63,14 @@
             position: relative;
         }
 
-        .header {
-            background: linear-gradient(135deg, var(--red-spain), var(--dark-red));
-            color: white;
-            padding: env(safe-area-inset-top, 20px) 20px 80px 20px;
-            text-align: center;
-            position: relative;
-            overflow: visible; /* Изменено с hidden на visible */
+       .header {
+           background: linear-gradient(135deg, var(--red-spain), var(--dark-red));
+           color: white;
+           padding: env(safe-area-inset-top, 20px) 20px 80px 20px;
+           text-align: center;
+           position: relative;
+           overflow: visible;
         }
-
         .header::before {
             content: '';
             position: absolute;
@@ -129,11 +128,11 @@
         }
 
         .microphone-container {
-            position: absolute;
-            bottom: -60px; /* Увеличено с -50px до -60px */
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
+           position: fixed;
+           top: 120px;
+           left: 50%;
+           transform: translateX(-50%);
+           z-index: 100;
         }
 
         .main-microphone {
@@ -322,12 +321,12 @@
         }
 
         .bottom-controls {
-            position: fixed;
-            bottom: env(safe-area-inset-bottom, 20px);
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 20px;
+           position: fixed;
+           bottom: calc(env(safe-area-inset-bottom, 20px) + 20px);
+           left: 50%;
+           transform: translateX(-50%);
+           display: flex;
+           gap: 20px;
         }
 
         .clear-btn {
