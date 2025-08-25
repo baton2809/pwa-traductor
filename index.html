@@ -490,601 +490,603 @@
     </style>
 </head>
 <body>
-    <div class="install-prompt" id="installPrompt">
-        <div>
-            <strong>Установить приложение?</strong><br>
-            <small>Добавить на главный экран для быстрого доступа</small>
-        </div>
-        <div>
-            <button class="install-btn" id="installBtn">Установить</button>
-            <button class="install-btn" id="dismissBtn" style="margin-left: 10px;">Отмена</button>
-        </div>
-    </div>
+   <div class="install-prompt" id="installPrompt">
+       <div>
+           <strong>Установить приложение?</strong><br>
+           <small>Добавить на главный экран для быстрого доступа</small>
+       </div>
+       <div>
+           <button class="install-btn" id="installBtn">Установить</button>
+           <button class="install-btn" id="dismissBtn" style="margin-left: 10px;">Отмена</button>
+       </div>
+   </div>
 
-    <div class="app-container">
-        <header class="header">
-            <h1>Traductor Español-Ruso</h1>
-            <div class="language-switch">
-                <span class="language-label" id="sourceLabel">РУССКИЙ</span>
-                <button class="switch-btn" id="switchBtn" title="Переключить языки">⇄</button>
-                <span class="language-label" id="targetLabel">ESPAÑOL</span>
-            </div>
-            
-            <div class="microphone-container">
-                <button class="main-microphone" id="listenBtn" title="Начать/остановить запись">
-                    <span class="microphone-icon">🎤</span>
-                </button>
-            </div>
-        </header>
+   <div class="app-container">
+       <header class="header">
+           <h1>Traductor Español-Ruso</h1>
+           <div class="language-switch">
+               <span class="language-label" id="sourceLabel">РУССКИЙ</span>
+               <button class="switch-btn" id="switchBtn" title="Переключить языки">⇄</button>
+               <span class="language-label" id="targetLabel">ESPAÑOL</span>
+           </div>
+           
+           <div class="microphone-container">
+               <button class="main-microphone" id="listenBtn" title="Начать/остановить запись">
+                   <span class="microphone-icon">🎤</span>
+               </button>
+           </div>
+       </header>
 
-        <main class="main-content">
-            <div class="status-bar">
-                <div class="status-text" id="statusText">Готов к работе</div>
-                <div class="listening-indicator" id="listeningIndicator" style="display: none;">
-                    <div class="pulse"></div>
-                    <span>Слушаю...</span>
-                </div>
-            </div>
+       <main class="main-content">
+           <div class="status-bar">
+               <div class="status-text" id="statusText">Готов к работе</div>
+               <div class="listening-indicator" id="listeningIndicator" style="display: none;">
+                   <div class="pulse"></div>
+                   <span id="listeningText">Слушаю...</span>
+               </div>
+           </div>
 
-            <div class="conversation-area" id="conversationArea">
-                <div class="welcome-message">
-                    <h3>¡Bienvenido!</h3>
-                    <p>Нажмите кнопку микрофона и начните говорить</p>
-                </div>
-            </div>
+           <div class="conversation-area" id="conversationArea">
+               <div class="welcome-message">
+                   <h3>¡Bienvenido!</h3>
+                   <p>Нажмите кнопку микрофона и начните говорить</p>
+               </div>
+           </div>
 
-            <div class="cache-info" id="cacheInfo">
-                Кэш: 0 переводов
-            </div>
-        </main>
+           <div class="cache-info" id="cacheInfo">
+               Кэш: 0 переводов
+           </div>
+       </main>
 
-        <div class="bottom-controls">
-            <button class="clear-btn" id="clearBtn" title="Очистить историю">
-                🗑️
-            </button>
-        </div>
+       <div class="bottom-controls">
+           <button class="clear-btn" id="clearBtn" title="Очистить историю">
+               🗑️
+           </button>
+       </div>
 
-        <div class="partial-text" id="partialText" style="display: none;"></div>
-    </div>
+       <div class="partial-text" id="partialText" style="display: none;"></div>
+   </div>
 
-    <script>
-        class TranslatorPWA {
-            constructor() {
-                this.isListening = false;
-                this.recognition = null;
-                this.currentLang = 'ru'; // ru или es
-                this.cache = this.loadCache();
-                this.installPrompt = null;
-                
-                this.initElements();
-                this.initSpeechRecognition();
-                this.initPWA();
-                this.updateUI();
-                this.updateCacheInfo();
-            }
+   <script>
+       class TranslatorPWA {
+           constructor() {
+               this.isListening = false;
+               this.recognition = null;
+               this.currentLang = 'ru'; // ru или es
+               this.cache = this.loadCache();
+               this.installPrompt = null;
+               
+               this.initElements();
+               this.initSpeechRecognition();
+               this.initPWA();
+               this.updateUI();
+               this.updateCacheInfo();
+           }
 
-            initElements() {
-                this.statusText = document.getElementById('statusText');
-                this.listeningIndicator = document.getElementById('listeningIndicator');
-                this.conversationArea = document.getElementById('conversationArea');
-                this.sourceLabel = document.getElementById('sourceLabel');
-                this.targetLabel = document.getElementById('targetLabel');
-                this.listenBtn = document.getElementById('listenBtn');
-                this.clearBtn = document.getElementById('clearBtn');
-                this.switchBtn = document.getElementById('switchBtn');
-                this.partialText = document.getElementById('partialText');
-                this.cacheInfo = document.getElementById('cacheInfo');
+           initElements() {
+               this.statusText = document.getElementById('statusText');
+               this.listeningIndicator = document.getElementById('listeningIndicator');
+               this.listeningText = document.getElementById('listeningText');
+               this.conversationArea = document.getElementById('conversationArea');
+               this.sourceLabel = document.getElementById('sourceLabel');
+               this.targetLabel = document.getElementById('targetLabel');
+               this.listenBtn = document.getElementById('listenBtn');
+               this.clearBtn = document.getElementById('clearBtn');
+               this.switchBtn = document.getElementById('switchBtn');
+               this.partialText = document.getElementById('partialText');
+               this.cacheInfo = document.getElementById('cacheInfo');
 
-                // Обработчики событий
-                this.listenBtn.addEventListener('click', () => this.toggleListening());
-                this.clearBtn.addEventListener('click', () => this.clearHistory());
-                this.switchBtn.addEventListener('click', () => this.switchLanguages());
+               // Обработчики событий
+               this.listenBtn.addEventListener('click', () => this.toggleListening());
+               this.clearBtn.addEventListener('click', () => this.clearHistory());
+               this.switchBtn.addEventListener('click', () => this.switchLanguages());
 
-                // Предотвращение масштабирования на двойной тап
-                document.addEventListener('touchstart', (e) => {
-                    if (e.touches.length > 1) {
-                        e.preventDefault();
-                    }
-                });
+               // Предотвращение масштабирования на двойной тап
+               document.addEventListener('touchstart', (e) => {
+                   if (e.touches.length > 1) {
+                       e.preventDefault();
+                   }
+               });
 
-                let lastTouchEnd = 0;
-                document.addEventListener('touchend', (e) => {
-                    const now = (new Date()).getTime();
-                    if (now - lastTouchEnd <= 300) {
-                        e.preventDefault();
-                    }
-                    lastTouchEnd = now;
-                }, false);
-            }
+               let lastTouchEnd = 0;
+               document.addEventListener('touchend', (e) => {
+                   const now = (new Date()).getTime();
+                   if (now - lastTouchEnd <= 300) {
+                       e.preventDefault();
+                   }
+                   lastTouchEnd = now;
+               }, false);
+           }
 
-            initSpeechRecognition() {
-                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                    this.showError('Распознавание речи не поддерживается в вашем браузере');
-                    return;
-                }
+           initSpeechRecognition() {
+               if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                   this.showError('Распознавание речи не поддерживается в вашем браузере');
+                   return;
+               }
 
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                this.recognition = new SpeechRecognition();
+               const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+               this.recognition = new SpeechRecognition();
 
-                this.recognition.continuous = true;
-                this.recognition.interimResults = true;
-                this.recognition.maxAlternatives = 1;
+               this.recognition.continuous = true;
+               this.recognition.interimResults = true;
+               this.recognition.maxAlternatives = 1;
 
-                this.recognition.onstart = () => {
-                    this.isListening = true;
-                    this.updateUI();
-                };
+               this.recognition.onstart = () => {
+                   this.isListening = true;
+                   this.updateUI();
+               };
 
-                this.recognition.onend = () => {
-                    this.isListening = false;
-                    this.updateUI();
-                    this.hidePartialText();
-                };
+               this.recognition.onend = () => {
+                   this.isListening = false;
+                   this.updateUI();
+                   this.hidePartialText();
+               };
 
-                this.recognition.onerror = (event) => {
-                    console.error('Speech recognition error:', event.error);
-                    this.isListening = false;
-                    this.updateUI();
-                    
-                    let errorMessage = 'Ошибка распознавания речи';
-                    switch(event.error) {
-                        case 'no-speech':
-                            errorMessage = 'Речь не обнаружена. Попробуйте еще раз';
-                            break;
-                        case 'network':
-                            errorMessage = 'Ошибка сети. Проверьте подключение к интернету';
-                            break;
-                        case 'not-allowed':
-                            errorMessage = 'Доступ к микрофону заблокирован. Разрешите доступ';
-                            break;
-                    }
-                    this.showError(errorMessage);
-                };
+               this.recognition.onerror = (event) => {
+                   console.error('Speech recognition error:', event.error);
+                   this.isListening = false;
+                   this.updateUI();
+                   
+                   let errorMessage = 'Ошибка распознавания речи';
+                   switch(event.error) {
+                       case 'no-speech':
+                           errorMessage = 'Речь не обнаружена. Попробуйте еще раз';
+                           break;
+                       case 'network':
+                           errorMessage = 'Ошибка сети. Проверьте подключение к интернету';
+                           break;
+                       case 'not-allowed':
+                           errorMessage = 'Доступ к микрофону заблокирован. Разрешите доступ';
+                           break;
+                   }
+                   this.showError(errorMessage);
+               };
 
-                this.recognition.onresult = (event) => {
-                    let interimTranscript = '';
-                    let finalTranscript = '';
+               this.recognition.onresult = (event) => {
+                   let interimTranscript = '';
+                   let finalTranscript = '';
 
-                    for (let i = event.resultIndex; i < event.results.length; i++) {
-                        const transcript = event.results[i][0].transcript;
-                        
-                        if (event.results[i].isFinal) {
-                            finalTranscript += transcript;
-                        } else {
-                            interimTranscript += transcript;
-                        }
-                    }
+                   for (let i = event.resultIndex; i < event.results.length; i++) {
+                       const transcript = event.results[i][0].transcript;
+                       
+                       if (event.results[i].isFinal) {
+                           finalTranscript += transcript;
+                       } else {
+                           interimTranscript += transcript;
+                       }
+                   }
 
-                    if (interimTranscript) {
-                        this.showPartialText(interimTranscript);
-                    }
+                   if (interimTranscript) {
+                       this.showPartialText(interimTranscript);
+                   }
 
-                    if (finalTranscript.trim()) {
-                        this.hidePartialText();
-                        this.processText(finalTranscript.trim());
-                    }
-                };
-            }
+                   if (finalTranscript.trim()) {
+                       this.hidePartialText();
+                       this.processText(finalTranscript.trim());
+                   }
+               };
+           }
 
-            initPWA() {
-                // Регистрация Service Worker
-                if ('serviceWorker' in navigator) {
-                    this.registerServiceWorker();
-                }
+           initPWA() {
+               // Регистрация Service Worker
+               if ('serviceWorker' in navigator) {
+                   this.registerServiceWorker();
+               }
 
-                // Обработка установки PWA
-                window.addEventListener('beforeinstallprompt', (e) => {
-                    e.preventDefault();
-                    this.installPrompt = e;
-                    this.showInstallPrompt();
-                });
+               // Обработка установки PWA
+               window.addEventListener('beforeinstallprompt', (e) => {
+                   e.preventDefault();
+                   this.installPrompt = e;
+                   this.showInstallPrompt();
+               });
 
-                // Установка обработчиков для промпта установки
-                document.getElementById('installBtn').addEventListener('click', () => {
-                    this.installApp();
-                });
+               // Установка обработчиков для промпта установки
+               document.getElementById('installBtn').addEventListener('click', () => {
+                   this.installApp();
+               });
 
-                document.getElementById('dismissBtn').addEventListener('click', () => {
-                    this.hideInstallPrompt();
-                });
+               document.getElementById('dismissBtn').addEventListener('click', () => {
+                   this.hideInstallPrompt();
+               });
 
-                // Генерация манифеста
-                this.generateManifest();
-            }
+               // Генерация манифеста
+               this.generateManifest();
+           }
 
-            registerServiceWorker() {
-                const swCode = `
-                const CACHE_NAME = 'translator-pwa-v1';
-                const urlsToCache = [
-                    '/',
-                    '/index.html'
-                ];
+           registerServiceWorker() {
+               const swCode = `
+               const CACHE_NAME = 'translator-pwa-v1';
+               const urlsToCache = [
+                   '/',
+                   '/index.html'
+               ];
 
-                self.addEventListener('install', (event) => {
-                    event.waitUntil(
-                        caches.open(CACHE_NAME)
-                            .then((cache) => cache.addAll(urlsToCache))
-                    );
-                });
+               self.addEventListener('install', (event) => {
+                   event.waitUntil(
+                       caches.open(CACHE_NAME)
+                           .then((cache) => cache.addAll(urlsToCache))
+                   );
+               });
 
-                self.addEventListener('fetch', (event) => {
-                    event.respondWith(
-                        caches.match(event.request)
-                            .then((response) => {
-                                if (response) {
-                                    return response;
-                                }
-                                return fetch(event.request);
-                            }
-                        )
-                    );
-                });
-                `;
+               self.addEventListener('fetch', (event) => {
+                   event.respondWith(
+                       caches.match(event.request)
+                           .then((response) => {
+                               if (response) {
+                                   return response;
+                               }
+                               return fetch(event.request);
+                           }
+                       )
+                   );
+               });
+               `;
 
-                const blob = new Blob([swCode], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(blob);
+               const blob = new Blob([swCode], { type: 'application/javascript' });
+               const swUrl = URL.createObjectURL(blob);
 
-                navigator.serviceWorker.register(swUrl)
-                    .then((registration) => {
-                        console.log('SW registered:', registration);
-                    })
-                    .catch((error) => {
-                        console.log('SW registration failed:', error);
-                    });
-            }
+               navigator.serviceWorker.register(swUrl)
+                   .then((registration) => {
+                       console.log('SW registered:', registration);
+                   })
+                   .catch((error) => {
+                       console.log('SW registration failed:', error);
+                   });
+           }
 
-            generateManifest() {
-                const manifest = {
-                    name: "Переводчик Русский-Испанский",
-                    short_name: "RU-ES Traductor",
-                    description: "Голосовой переводчик с русского на испанский и обратно",
-                    start_url: "/",
-                    display: "standalone",
-                    orientation: "portrait",
-                    theme_color: "#c41e3a",
-                    background_color: "#fef7cd",
-                    icons: [
-                        {
-                            src: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iNDAiIGZpbGw9IiNjNDFlM2EiLz4KPHA+CjxwYXRoIGQ9Ik05NiA0MGMtMzAgMC01NSAyNS01NSA1NXMyNSA1NSA1NSA1NSA1NS0yNSA1NS01NVM2OCA0MCA5NiA0MFoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZDcwMCIgc3Ryb2tlLXdpZHRoPSI4Ii8+CjxwYXRoIGQ9Ik05NiA2MGMtMjAgMC0zNSAxNS0zNSAzNXMxNSAzNSAzNSAzNSAzNS0xNSAzNS0zNVM4MSA2MCA5NiA2MFoiIGZpbGw9IiNmZmQ3MDAiLz4KPGNpcmNsZSBjeD0iOTYiIGN5PSI5NSIgcj0iMTUiIGZpbGw9IiNjNDFlM2EiLz4KPHBhdGggZD0iTTgwIDEwNWgyMGMwIDgtNSAxNS0xMCAxNXMtMTAtNy0xMC0xNVoiIGZpbGw9IiNmZmQ3MDAiLz4KPHBhdGggZD0iTTc1IDE0MGw0IDRjMTUgMTIgMzUgMTIgNTAgMCBsLTQtNGMtMTItOS0zMC05LTQyIDBaIiBmaWxsPSIjZmZkNzAwIi8+CjxwYXRoIGQ9Ik04NSAxNjBoMjBjMyAwIDUgMiA1IDV2OGMwIDMtMiA1LTUgNWgtMjBjLTMgMC01LTItNS01di04YzAtMyAyLTUgNS01WiIgZmlsbD0iI2M0MWUzYSIvPgo8L3A+Cjwvc3ZnPg==",
-                            sizes: "192x192",
-                            type: "image/svg+xml"
-                        },
-                        {
-                            src: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTAwIiBmaWxsPSIjYzQxZTNhIi8+CjxwYXRoIGQ9Ik0yNTYgMTAwYy04MiAwLTE1MCA2OC0xNTAgMTUwczY4IDE1MCAxNTAgMTUwIDE1MC02OCAxNTAtMTUwUzI1NSAxMDAgMjU2IDEwMFoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZDcwMCIgc3Ryb2tlLXdpZHRoPSIyMCIvPgo8cGF0aCBkPSJNMjU2IDE1MGMtNTUgMC0xMDAgNDUtMTAwIDEwMHM0NSAxMDAgMTAwIDEwMCAxMDAtNDUgMTAwLTEwMFMzMTEgMTUwIDI1NiAxNTBaIiBmaWxsPSIjZmZkNzAwIi8+CjxjaXJjbGUgY3g9IjI1NiIgY3k9IjI1MCIgcj0iNDAiIGZpbGw9IiNjNDFlM2EiLz4KPHBhdGggZD0iTTIxNiAyODBoNjBjMCAyMC0xNSA0MC0zMCA0MHMtMzAtMjAtMzAtNDBaIiBmaWxsPSIjZmZkNzAwIi8+CjxwYXRoIGQ9Ik0yMDAgMzYwbDEwIDEwYzQwIDMwIDkwIDMwIDEzMCAwIGwtMTAtMTBjLTMwLTI1LTgwLTI1LTExMCAwWiIgZmlsbD0iI2ZmZDcwMCIvPgo8cGF0aCBkPSJNMjI2IDQyMGg2MGM4IDAgMTUgNyAxNSAxNXYyMGMwIDgtNyAxNS0xNSAxNWgtNjBjLTggMC0xNS03LTE1LTE1di0yMGMwLTggNy0xNSAxNS0xNVoiIGZpbGw9IiNjNDFlM2EiLz4KPC9zdmc+",
-                            sizes: "512x512",
-                            type: "image/svg+xml"
-                        }
-                    ]
-                };
+           generateManifest() {
+               const manifest = {
+                   name: "Переводчик Русский-Испанский",
+                   short_name: "RU-ES Traductor",
+                   description: "Голосовой переводчик с русского на испанский и обратно",
+                   start_url: "/",
+                   display: "standalone",
+                   orientation: "portrait",
+                   theme_color: "#c41e3a",
+                   background_color: "#fef7cd",
+                   icons: [
+                       {
+                           src: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iNDAiIGZpbGw9IiNjNDFlM2EiLz4KPHA+CjxwYXRoIGQ9Ik05NiA0MGMtMzAgMC01NSAyNS01NSA1NXMyNSA1NSA1NSA1NSA1NS0yNSA1NS01NVM2OCA0MCA5NiA0MFoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZDcwMCIgc3Ryb2tlLXdpZHRoPSI4Ii8+CjxwYXRoIGQ9Ik05NiA2MGMtMjAgMC0zNSAxNS0zNSAzNXMxNSAzNSAzNSAzNSAzNS0xNSAzNS0zNVM4MSA2MCA5NiA2MFoiIGZpbGw9IiNmZmQ3MDAiLz4KPGNpcmNsZSBjeD0iOTYiIGN5PSI5NSIgcj0iMTUiIGZpbGw9IiNjNDFlM2EiLz4KPHBhdGggZD0iTTgwIDEwNWgyMGMwIDgtNSAxNS0xMCAxNXMtMTAtNy0xMC0xNVoiIGZpbGw9IiNmZmQ3MDAiLz4KPHBhdGggZD0iTTc1IDE0MGw0IDRjMTUgMTIgMzUgMTIgNTAgMCBsLTQtNGMtMTItOS0zMC05LTQyIDBaIiBmaWxsPSIjZmZkNzAwIi8+CjxwYXRoIGQ9Ik04NSAxNjBoMjBjMyAwIDUgMiA1IDV2OGMwIDMtMiA1LTUgNWgtMjBjLTMgMC01LTItNS01di04YzAtMyAyLTUgNS01WiIgZmlsbD0iI2M0MWUzYSIvPgo8L3A+Cjwvc3ZnPg==",
+                           sizes: "192x192",
+                           type: "image/svg+xml"
+                       },
+                       {
+                           src: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTAwIiBmaWxsPSIjYzQxZTNhIi8+CjxwYXRoIGQ9Ik0yNTYgMTAwYy04MiAwLTE1MCA2OC0xNTAgMTUwczY4IDE1MCAxNTAgMTUwIDE1MC02OCAxNTAtMTUwUzI1NSAxMDAgMjU2IDEwMFoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZDcwMCIgc3Ryb2tlLXdpZHRoPSIyMCIvPgo8cGF0aCBkPSJNMjU2IDE1MGMtNTUgMC0xMDAgNDUtMTAwIDEwMHM0NSAxMDAgMTAwIDEwMCAxMDAtNDUgMTAwLTEwMFMzMTEgMTUwIDI1NiAxNTBaIiBmaWxsPSIjZmZkNzAwIi8+CjxjaXJjbGUgY3g9IjI1NiIgY3k9IjI1MCIgcj0iNDAiIGZpbGw9IiNjNDFlM2EiLz4KPHBhdGggZD0iTTIxNiAyODBoNjBjMCAyMC0xNSA0MC0zMCA0MHMtMzAtMjAtMzAtNDBaIiBmaWxsPSIjZmZkNzAwIi8+CjxwYXRoIGQ9Ik0yMDAgMzYwbDEwIDEwYzQwIDMwIDkwIDMwIDEzMCAwIGwtMTAtMTBjLTMwLTI1LTgwLTI1LTExMCAwWiIgZmlsbD0iI2ZmZDcwMCIvPgo8cGF0aCBkPSJNMjI2IDQyMGg2MGM4IDAgMTUgNyAxNSAxNXYyMGMwIDgtNyAxNS0xNSAxNWgtNjBjLTggMC0xNS03LTE1LTE1di0yMGMwLTggNy0xNSAxNS0xNVoiIGZpbGw9IiNjNDFlM2EiLz4KPC9zdmc+",
+                           sizes: "512x512",
+                           type: "image/svg+xml"
+                       }
+                   ]
+               };
 
-                const manifestBlob = new Blob([JSON.stringify(manifest)], {
-                    type: 'application/json'
-                });
-                const manifestUrl = URL.createObjectURL(manifestBlob);
-                document.getElementById('manifest-placeholder').href = manifestUrl;
-            }
+               const manifestBlob = new Blob([JSON.stringify(manifest)], {
+                   type: 'application/json'
+               });
+               const manifestUrl = URL.createObjectURL(manifestBlob);
+               document.getElementById('manifest-placeholder').href = manifestUrl;
+           }
 
-            showInstallPrompt() {
-                document.getElementById('installPrompt').classList.add('show');
-            }
+           showInstallPrompt() {
+               document.getElementById('installPrompt').classList.add('show');
+           }
 
-            hideInstallPrompt() {
-                document.getElementById('installPrompt').classList.remove('show');
-            }
+           hideInstallPrompt() {
+               document.getElementById('installPrompt').classList.remove('show');
+           }
 
-            async installApp() {
-                if (this.installPrompt) {
-                    this.installPrompt.prompt();
-                    const result = await this.installPrompt.userChoice;
-                    
-                    if (result.outcome === 'accepted') {
-                        console.log('PWA установлено');
-                    }
-                    
-                    this.installPrompt = null;
-                    this.hideInstallPrompt();
-                }
-            }
+           async installApp() {
+               if (this.installPrompt) {
+                   this.installPrompt.prompt();
+                   const result = await this.installPrompt.userChoice;
+                   
+                   if (result.outcome === 'accepted') {
+                       console.log('PWA установлено');
+                   }
+                   
+                   this.installPrompt = null;
+                   this.hideInstallPrompt();
+               }
+           }
 
-            toggleListening() {
-                if (this.isListening) {
-                    this.stopListening();
-                } else {
-                    this.startListening();
-                }
-            }
+           toggleListening() {
+               if (this.isListening) {
+                   this.stopListening();
+               } else {
+                   this.startListening();
+               }
+           }
 
-            startListening() {
-                if (!this.recognition) {
-                    this.showError('Распознавание речи недоступно');
-                    return;
-                }
+           startListening() {
+               if (!this.recognition) {
+                   this.showError('Распознавание речи недоступно');
+                   return;
+               }
 
-                // Устанавливаем язык
-                const lang = this.currentLang === 'ru' ? 'ru-RU' : 'es-ES';
-                this.recognition.lang = lang;
+               // Устанавливаем язык
+               const lang = this.currentLang === 'ru' ? 'ru-RU' : 'es-ES';
+               this.recognition.lang = lang;
 
-                try {
-                    this.recognition.start();
-                } catch (error) {
-                    console.error('Error starting recognition:', error);
-                    this.showError('Не удалось начать распознавание');
-                }
-            }
+               try {
+                   this.recognition.start();
+               } catch (error) {
+                   console.error('Error starting recognition:', error);
+                   this.showError('Не удалось начать распознавание');
+               }
+           }
 
-            stopListening() {
-                if (this.recognition && this.isListening) {
-                    this.recognition.stop();
-                }
-            }
+           stopListening() {
+               if (this.recognition && this.isListening) {
+                   this.recognition.stop();
+               }
+           }
 
-            async processText(text) {
-                console.log('Processing text:', text);
-                
-                // Добавляем исходное сообщение
-                this.addMessage(text, this.currentLang, 'original');
-                
-                // Переводим
-                const targetLang = this.currentLang === 'ru' ? 'es' : 'ru';
-                const translation = await this.translateText(text, this.currentLang, targetLang);
-                
-                if (translation) {
-                    this.addMessage(translation, targetLang, 'translation');
-                } else {
-                    this.showError('Не удалось перевести текст');
-                }
-            }
+           async processText(text) {
+               console.log('Processing text:', text);
+               
+               // Добавляем исходное сообщение
+               this.addMessage(text, this.currentLang, 'original');
+               
+               // Переводим
+               const targetLang = this.currentLang === 'ru' ? 'es' : 'ru';
+               const translation = await this.translateText(text, this.currentLang, targetLang);
+               
+               if (translation) {
+                   this.addMessage(translation, targetLang, 'translation');
+               } else {
+                   this.showError('Не удалось перевести текст');
+               }
+           }
 
-            async translateText(text, fromLang, toLang) {
-                // Проверяем кэш
-                const cacheKey = this.getCacheKey(text, fromLang, toLang);
-                const cached = this.cache[cacheKey];
-                
-                if (cached && this.isCacheValid(cached)) {
-                    cached.accessCount = (cached.accessCount || 0) + 1;
-                    cached.lastAccess = new Date().toISOString();
-                    this.saveCache();
-                    this.updateCacheInfo();
-                    return cached.translation;
-                }
+           async translateText(text, fromLang, toLang) {
+               // Проверяем кэш
+               const cacheKey = this.getCacheKey(text, fromLang, toLang);
+               const cached = this.cache[cacheKey];
+               
+               if (cached && this.isCacheValid(cached)) {
+                   cached.accessCount = (cached.accessCount || 0) + 1;
+                   cached.lastAccess = new Date().toISOString();
+                   this.saveCache();
+                   this.updateCacheInfo();
+                   return cached.translation;
+               }
 
-                // API запрос
-                try {
-                    const url = 'https://api.mymemory.translated.net/get';
-                    const params = new URLSearchParams({
-                        q: text,
-                        langpair: `${fromLang}|${toLang}`,
-                        de: 'translator@example.com'
-                    });
+               // API запрос
+               try {
+                   const url = 'https://api.mymemory.translated.net/get';
+                   const params = new URLSearchParams({
+                       q: text,
+                       langpair: `${fromLang}|${toLang}`,
+                       de: 'translator@example.com'
+                   });
 
-                    const response = await fetch(`${url}?${params}`, {
-                        method: 'GET',
-                        timeout: 8000
-                    });
+                   const response = await fetch(`${url}?${params}`, {
+                       method: 'GET',
+                       timeout: 8000
+                   });
 
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}`);
-                    }
+                   if (!response.ok) {
+                       throw new Error(`HTTP ${response.status}`);
+                   }
 
-                    const data = await response.json();
-                    
-                    if (data.responseStatus === 200) {
-                        const translation = data.responseData.translatedText;
-                        
-                        // Сохраняем в кэш
-                        this.cache[cacheKey] = {
-                            translation: translation,
-                            timestamp: new Date().toISOString(),
-                            accessCount: 1,
-                            lastAccess: new Date().toISOString()
-                        };
-                        
-                        this.cleanCache();
-                        this.saveCache();
-                        this.updateCacheInfo();
-                        
-                        return translation;
-                    }
-                } catch (error) {
-                    console.error('Translation error:', error);
-                }
-                
-                return null;
-            }
+                   const data = await response.json();
+                   
+                   if (data.responseStatus === 200) {
+                       const translation = data.responseData.translatedText;
+                       
+                       // Сохраняем в кэш
+                       this.cache[cacheKey] = {
+                           translation: translation,
+                           timestamp: new Date().toISOString(),
+                           accessCount: 1,
+                           lastAccess: new Date().toISOString()
+                       };
+                       
+                       this.cleanCache();
+                       this.saveCache();
+                       this.updateCacheInfo();
+                       
+                       return translation;
+                   }
+               } catch (error) {
+                   console.error('Translation error:', error);
+               }
+               
+               return null;
+           }
 
-            getCacheKey(text, fromLang, toLang) {
-                const normalizedText = text.toLowerCase().trim().replace(/\s+/g, ' ');
-                const cacheString = `${normalizedText}_${fromLang}_${toLang}`;
-                
-                // Простая хэш-функция
-                let hash = 0;
-                for (let i = 0; i < cacheString.length; i++) {
-                    const char = cacheString.charCodeAt(i);
-                    hash = ((hash << 5) - hash) + char;
-                    hash = hash & hash; // 32-битное число
-                }
-                
-                return hash.toString(36);
-            }
+           getCacheKey(text, fromLang, toLang) {
+               const normalizedText = text.toLowerCase().trim().replace(/\s+/g, ' ');
+               const cacheString = `${normalizedText}_${fromLang}_${toLang}`;
+               
+               // Простая хэш-функция
+               let hash = 0;
+               for (let i = 0; i < cacheString.length; i++) {
+                   const char = cacheString.charCodeAt(i);
+                   hash = ((hash << 5) - hash) + char;
+                   hash = hash & hash; // 32-битное число
+               }
+               
+               return hash.toString(36);
+           }
 
-            isCacheValid(cacheEntry) {
-                const cacheDate = new Date(cacheEntry.timestamp);
-                const now = new Date();
-                const daysDiff = (now - cacheDate) / (1000 * 60 * 60 * 24);
-                
-                return daysDiff < 7; // 7 дней
-            }
+           isCacheValid(cacheEntry) {
+               const cacheDate = new Date(cacheEntry.timestamp);
+               const now = new Date();
+               const daysDiff = (now - cacheDate) / (1000 * 60 * 60 * 24);
+               
+               return daysDiff < 7; // 7 дней
+           }
 
-            cleanCache() {
-                const maxSize = 500;
-                const entries = Object.entries(this.cache);
-                
-                if (entries.length <= maxSize) return;
-                
-                // Сортируем по времени последнего доступа
-                entries.sort((a, b) => {
-                    const timeA = new Date(a[1].lastAccess || a[1].timestamp);
-                    const timeB = new Date(b[1].lastAccess || b[1].timestamp);
-                    return timeA - timeB;
-                });
-                
-                // Удаляем старые записи
-                const toRemove = entries.length - maxSize;
-                for (let i = 0; i < toRemove; i++) {
-                    delete this.cache[entries[i][0]];
-                }
-            }
+           cleanCache() {
+               const maxSize = 500;
+               const entries = Object.entries(this.cache);
+               
+               if (entries.length <= maxSize) return;
+               
+               // Сортируем по времени последнего доступа
+               entries.sort((a, b) => {
+                   const timeA = new Date(a[1].lastAccess || a[1].timestamp);
+                   const timeB = new Date(b[1].lastAccess || b[1].timestamp);
+                   return timeA - timeB;
+               });
+               
+               // Удаляем старые записи
+               const toRemove = entries.length - maxSize;
+               for (let i = 0; i < toRemove; i++) {
+                   delete this.cache[entries[i][0]];
+               }
+           }
 
-            loadCache() {
-                try {
-                    const cached = localStorage.getItem('translator_cache');
-                    return cached ? JSON.parse(cached) : {};
-                } catch (error) {
-                    console.error('Error loading cache:', error);
-                    return {};
-                }
-            }
+           loadCache() {
+               try {
+                   const cached = localStorage.getItem('translator_cache');
+                   return cached ? JSON.parse(cached) : {};
+               } catch (error) {
+                   console.error('Error loading cache:', error);
+                   return {};
+               }
+           }
 
-            saveCache() {
-                try {
-                    localStorage.setItem('translator_cache', JSON.stringify(this.cache));
-                } catch (error) {
-                    console.error('Error saving cache:', error);
-                }
-            }
+           saveCache() {
+               try {
+                   localStorage.setItem('translator_cache', JSON.stringify(this.cache));
+               } catch (error) {
+                   console.error('Error saving cache:', error);
+               }
+           }
 
-            addMessage(text, lang, type) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${type === 'original' ? 'listening' : ''}`;
-                
-                const isRussian = lang === 'ru';
-                const headerClass = isRussian ? 'russian' : 'spanish';
-                const headerText = isRussian ? 'Русский' : 'Español';
-                
-                messageDiv.innerHTML = `
-                    <div class="message-header ${headerClass}">
-                        ${headerText}
-                    </div>
-                    <div class="message-content">${text}</div>
-                `;
-                
-                // Удаляем приветственное сообщение
-                const welcomeMsg = this.conversationArea.querySelector('.welcome-message');
-                if (welcomeMsg) {
-                    welcomeMsg.remove();
-                }
-                
-                this.conversationArea.appendChild(messageDiv);
-                
-                // Прокручиваем к новому сообщению
-                messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                
-                // Убираем эффект "listening" через секунду
-                if (type === 'original') {
-                    setTimeout(() => {
-                        messageDiv.classList.remove('listening');
-                    }, 1000);
-                }
-            }
+           addMessage(text, lang, type) {
+               const messageDiv = document.createElement('div');
+               messageDiv.className = `message ${type === 'original' ? 'listening' : ''}`;
+               
+               const isRussian = lang === 'ru';
+               const headerClass = isRussian ? 'russian' : 'spanish';
+               const headerText = isRussian ? 'Русский' : 'Español';
+               
+               messageDiv.innerHTML = `
+                   <div class="message-header ${headerClass}">
+                       ${headerText}
+                   </div>
+                   <div class="message-content">${text}</div>
+               `;
+               
+               // Удаляем приветственное сообщение
+               const welcomeMsg = this.conversationArea.querySelector('.welcome-message');
+               if (welcomeMsg) {
+                   welcomeMsg.remove();
+               }
+               
+               this.conversationArea.appendChild(messageDiv);
+               
+               // Прокручиваем к новому сообщению
+               messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+               
+               // Убираем эффект "listening" через секунду
+               if (type === 'original') {
+                   setTimeout(() => {
+                       messageDiv.classList.remove('listening');
+                   }, 1000);
+               }
+           }
 
-            switchLanguages() {
-                this.currentLang = this.currentLang === 'ru' ? 'es' : 'ru';
-                this.updateUI();
-                
-                // Показываем уведомление
-                this.showSuccess(`Переключено на ${this.currentLang === 'ru' ? 'русский' : 'испанский'}`);
-            }
+           switchLanguages() {
+               this.currentLang = this.currentLang === 'ru' ? 'es' : 'ru';
+               this.updateUI();
+               
+               // Показываем уведомление
+               this.showSuccess(`Переключено на ${this.currentLang === 'ru' ? 'русский' : 'испанский'}`);
+           }
 
-            clearHistory() {
-                this.conversationArea.innerHTML = `
-                    <div class="welcome-message">
-                        <h3>¡Bienvenido!</h3>
-                        <p>Нажмите кнопку микрофона и начните говорить</p>
-                    </div>
-                `;
-                this.showSuccess('Historia borrada');
-            }
+           clearHistory() {
+               this.conversationArea.innerHTML = `
+                   <div class="welcome-message">
+                       <h3>¡Bienvenido!</h3>
+                       <p>Нажмите кнопку микрофона и начните говорить</p>
+                   </div>
+               `;
+               this.showSuccess('Historia borrada');
+           }
 
-            showPartialText(text) {
-                this.partialText.textContent = text;
-                this.partialText.style.display = 'block';
-            }
+           showPartialText(text) {
+               this.partialText.textContent = text;
+               this.partialText.style.display = 'block';
+           }
 
-            hidePartialText() {
-                this.partialText.style.display = 'none';
-            }
+           hidePartialText() {
+               this.partialText.style.display = 'none';
+           }
 
-            showError(message) {
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'error';
-                errorDiv.textContent = message;
-                
-                this.conversationArea.appendChild(errorDiv);
-                errorDiv.scrollIntoView({ behavior: 'smooth' });
-                
-                setTimeout(() => {
-                    errorDiv.remove();
-                }, 5000);
-            }
+           showError(message) {
+               const errorDiv = document.createElement('div');
+               errorDiv.className = 'error';
+               errorDiv.textContent = message;
+               
+               this.conversationArea.appendChild(errorDiv);
+               errorDiv.scrollIntoView({ behavior: 'smooth' });
+               
+               setTimeout(() => {
+                   errorDiv.remove();
+               }, 5000);
+           }
 
-            showSuccess(message) {
-                const successDiv = document.createElement('div');
-                successDiv.className = 'success';
-                successDiv.textContent = message;
-                
-                document.querySelector('.main-content').insertBefore(
-                    successDiv, 
-                    this.conversationArea
-                );
-                
-                setTimeout(() => {
-                    successDiv.remove();
-                }, 3000);
-            }
+           showSuccess(message) {
+               const successDiv = document.createElement('div');
+               successDiv.className = 'success';
+               successDiv.textContent = message;
+               
+               document.querySelector('.main-content').insertBefore(
+                   successDiv, 
+                   this.conversationArea
+               );
+               
+               setTimeout(() => {
+                   successDiv.remove();
+               }, 3000);
+           }
 
-            updateUI() {
-                // Обновляем кнопку прослушивания
-                if (this.isListening) {
-                    this.listenBtn.classList.add('listening');
-                    this.statusText.textContent = 'Escuchando...';
-                    this.listeningIndicator.style.display = 'flex';
-                } else {
-                    this.listenBtn.classList.remove('listening');
-                    this.statusText.textContent = 'Listo para trabajar';
-                    this.listeningIndicator.style.display = 'none';
-                }
-                
-                // Обновляем метки языков
-                if (this.currentLang === 'ru') {
-                    this.sourceLabel.textContent = 'РУССКИЙ';
-                    this.targetLabel.textContent = 'ESPAÑOL';
-                } else {
-                    this.sourceLabel.textContent = 'ESPAÑOL';
-                    this.targetLabel.textContent = 'РУССКИЙ';
-                }
-            }
+           updateUI() {
+               // Обновляем кнопку прослушивания
+               if (this.isListening) {
+                   this.listenBtn.classList.add('listening');
+                   this.statusText.textContent = this.currentLang === 'ru' ? 'Слушаю русский...' : 'Escuchando español...';
+                   this.listeningText.textContent = this.currentLang === 'ru' ? 'Слушаю...' : 'Escuchando...';
+                   this.listeningIndicator.style.display = 'flex';
+               } else {
+                   this.listenBtn.classList.remove('listening');
+                   this.statusText.textContent = 'Listo para trabajar';
+                   this.listeningIndicator.style.display = 'none';
+               }
+               
+               // Обновляем метки языков
+               if (this.currentLang === 'ru') {
+                   this.sourceLabel.textContent = 'РУССКИЙ';
+                   this.targetLabel.textContent = 'ESPAÑOL';
+               } else {
+                   this.sourceLabel.textContent = 'ESPAÑOL';
+                   this.targetLabel.textContent = 'РУССКИЙ';
+               }
+           }
 
-            updateCacheInfo() {
-                const cacheSize = Object.keys(this.cache).length;
-                const totalAccess = Object.values(this.cache)
-                    .reduce((sum, entry) => sum + (entry.accessCount || 1), 0);
-                
-                this.cacheInfo.textContent = `Caché: ${cacheSize} traducciones, ${totalAccess} accesos`;
-            }
-        }
+           updateCacheInfo() {
+               const cacheSize = Object.keys(this.cache).length;
+               const totalAccess = Object.values(this.cache)
+                   .reduce((sum, entry) => sum + (entry.accessCount || 1), 0);
+               
+               this.cacheInfo.textContent = `Caché: ${cacheSize} traducciones, ${totalAccess} accesos`;
+           }
+       }
 
-        // Запуск приложения
-        document.addEventListener('DOMContentLoaded', () => {
-            window.translator = new TranslatorPWA();
-        });
+       // Запуск приложения
+       document.addEventListener('DOMContentLoaded', () => {
+           window.translator = new TranslatorPWA();
+       });
 
-        // Предотвращение случайного обновления страницы
-        window.addEventListener('beforeunload', (e) => {
-            if (window.translator && window.translator.isListening) {
-                e.preventDefault();
-                e.returnValue = '';
-            }
-        });
-    </script>
+       // Предотвращение случайного обновления страницы
+       window.addEventListener('beforeunload', (e) => {
+           if (window.translator && window.translator.isListening) {
+               e.preventDefault();
+               e.returnValue = '';
+           }
+       });
+   </script>
 </body>
 </html>
