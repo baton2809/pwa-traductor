@@ -248,11 +248,11 @@
            left: 50%;
            transform: translateX(-50%);
            display: flex;
-           gap: 20px;
+           gap: 15px;
            align-items: center;
         }
 
-        .main-microphone, .clear-btn {
+        .main-microphone, .clear-btn, .mute-btn {
             width: 60px;
             height: 60px;
             border: none;
@@ -337,6 +337,27 @@
         .clear-btn:hover {
             transform: scale(1.1);
             box-shadow: 0 8px 25px rgba(139, 69, 19, 0.6);
+        }
+
+        .mute-btn {
+            background: linear-gradient(135deg, var(--yellow-spain), #f4c430);
+            color: var(--red-spain);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .mute-btn.muted {
+            background: linear-gradient(135deg, #888, #666);
+            color: white;
+            box-shadow: 0 6px 20px rgba(136, 136, 136, 0.4);
+        }
+
+        .mute-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.6);
+        }
+
+        .mute-btn.muted:hover {
+            box-shadow: 0 8px 25px rgba(136, 136, 136, 0.6);
         }
 
         .cache-info {
@@ -496,6 +517,9 @@
            <button class="main-microphone" id="listenBtn" title="Начать/остановить запись">
                🎤
            </button>
+           <button class="mute-btn" id="muteBtn" title="Включить/выключить озвучивание">
+               🔊
+           </button>
            <button class="clear-btn" id="clearBtn" title="Очистить историю">
                🗑️
            </button>
@@ -513,12 +537,15 @@
                this.cache = this.loadCache();
                this.installPrompt = null;
                this.hasStartedListening = false;
+               this.isMuted = false; // Звук включен по умолчанию
+               this.speechSynthesis = window.speechSynthesis;
                
                this.initElements();
                this.initSpeechRecognition();
                this.initPWA();
                this.updateUI();
                this.updateCacheInfo();
+               this.updateMuteButton(); // Инициализируем кнопку mute
            }
 
            initElements() {
@@ -532,6 +559,7 @@
                this.listenBtn = document.getElementById('listenBtn');
                this.clearBtn = document.getElementById('clearBtn');
                this.switchBtn = document.getElementById('switchBtn');
+               this.muteBtn = document.getElementById('muteBtn');
                this.partialText = document.getElementById('partialText');
                this.cacheInfo = document.getElementById('cacheInfo');
 
@@ -539,6 +567,7 @@
                this.listenBtn.addEventListener('click', () => this.toggleListening());
                this.clearBtn.addEventListener('click', () => this.clearHistory());
                this.switchBtn.addEventListener('click', () => this.switchLanguages());
+               this.muteBtn.addEventListener('click', () => this.toggleMute());
 
                // Предотвращение масштабирования на двойной тап
                document.addEventListener('touchstart', (e) => {
@@ -798,6 +827,10 @@
                
                if (translation) {
                    this.addMessage(translation, targetLang, 'translation');
+                   // Озвучиваем перевод, если не выключен звук
+                   if (!this.isMuted) {
+                       this.speakText(translation, targetLang);
+                   }
                } else {
                    this.showError('Не удалось перевести текст');
                }
@@ -955,6 +988,50 @@
                
                // Показываем уведомление
                this.showSuccess(`Переключено на ${this.currentLang === 'ru' ? 'русский' : 'испанский'}`);
+           }
+
+           toggleMute() {
+               this.isMuted = !this.isMuted;
+               this.updateMuteButton();
+               
+               // Останавливаем текущее воспроизведение если включили мут
+               if (this.isMuted && this.speechSynthesis.speaking) {
+                   this.speechSynthesis.cancel();
+               }
+               
+               this.showSuccess(this.isMuted ? 'Звук выключен' : 'Звук включен');
+           }
+
+           speakText(text, lang) {
+               // Останавливаем предыдущее воспроизведение
+               if (this.speechSynthesis.speaking) {
+                   this.speechSynthesis.cancel();
+               }
+
+               const utterance = new SpeechSynthesisUtterance(text);
+               
+               // Устанавливаем язык
+               utterance.lang = lang === 'ru' ? 'ru-RU' : 'es-ES';
+               
+               // Настройки голоса
+               utterance.rate = 0.9;
+               utterance.pitch = 1;
+               utterance.volume = 1;
+
+               // Запускаем воспроизведение
+               this.speechSynthesis.speak(utterance);
+           }
+
+           updateMuteButton() {
+               if (this.isMuted) {
+                   this.muteBtn.classList.add('muted');
+                   this.muteBtn.textContent = '🔇';
+                   this.muteBtn.title = 'Включить озвучивание';
+               } else {
+                   this.muteBtn.classList.remove('muted');
+                   this.muteBtn.textContent = '🔊';
+                   this.muteBtn.title = 'Выключить озвучивание';
+               }
            }
 
            clearHistory() {
