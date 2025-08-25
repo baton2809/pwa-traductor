@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Переводчик RU-ES</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="RU-ES Переводчик">
+    <meta name="theme-color" content="#2563eb">
+    
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiByeD0iNDAiIGZpbGw9IiMyNTYzZWIiLz4KPHN2ZyB4PSI0MCIgeT0iNDAiIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgZmlsbD0ibm9uZSI+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjM1IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjQiLz4KPHA+PHRleHQgeD0iNTAiIHk9IjQ1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgZm9udC1zaXplPSIxNiIgZm9udC13ZWlnaHQ9ImJvbGQiPuKGujwvdGV4dD48L3A+CjwvY2lyY2xlPgo8L3N2Zz4KPC9zdmc+">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0iIzI1NjNlYiIvPgo8Y2lyY2xlIGN4PSIxNiIgY3k9IjE2IiByPSI4IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiLz4KPHN2ZyB4PSIxMiIgeT0iMTIiIHdpZHRoPSI4IiBoZWlnaHQ9IjgiIHZpZXdCb3g9IjAgMCA4IDgiPgo8cGF0aCBkPSJNMiA0aDRtLTItMnY0IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEiLz4KPC9zdmc+Cjwvc3ZnPg==">
+    <link rel="manifest" href="#" id="manifest-placeholder">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .app-container {
+            min-height: 100vh;
+            max-width: 500px;
+            margin: 0 auto;
+            background: var(--surface);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: env(safe-area-inset-top, 20px) 20px 20px 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .language-switch {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+
+        .language-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            min-width: 80px;
+        }
+
+        .switch-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .switch-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .main-content {
+            padding: 20px;
+            padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 100px);
+        }
+
+        .status-bar {
+            background: var(--surface);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary);
+        }
+
+        .status-text {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        .listening-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .pulse {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .conversation-area {
+            min-height: 400px;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            background: var(--surface);
+            margin-bottom: 15px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            animation: messageSlide 0.3s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-header {
+            padding: 12px 16px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .message-header.russian {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .message-header.spanish {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .message-content {
+            padding: 16px;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .message.listening {
+            border: 2px solid var(--success);
+            animation: listeningGlow 2s infinite;
+        }
+
+        @keyframes listeningGlow {
+            0%, 100% { border-color: var(--success); }
+            50% { border-color: transparent; }
+        }
+
+        .controls {
+            position: fixed;
+            bottom: env(safe-area-inset-bottom, 20px);
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            background: var(--surface);
+            padding: 15px 25px;
+            border-radius: 25px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .listen-btn {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .listen-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .listen-btn.listening {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            animation: listening 1.5s infinite;
+        }
+
+        @keyframes listening {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, var(--secondary), #475569);
+            color: white;
+        }
+
+        .clear-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .cache-info {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.8rem;
+            padding: 10px;
+            background: var(--background);
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .error {
+            background: var(--danger);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .success {
+            background: var(--success);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .partial-text {
+            position: fixed;
+            bottom: 120px;
+            left: 20px;
+            right: 20px;
+            background: rgba(37, 99, 235, 0.9);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 0.3s ease-out;
+            z-index: 50;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .install-prompt {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .install-prompt.show {
+            display: flex;
+        }
+
+        .install-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        /* iOS Safe Area */
+        @supports (padding: max(0px)) {
+            .app-container {
+                padding-top: max(env(safe-area-inset-top), 0px);
+                padding-bottom: max(env(safe-area-inset-bottom), 0px);
+            }
+        }
+
+        /* Dark theme support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background: #0f172a;
+                --surface: #1e293b;
+                --text: #f1f5f9;
+                --text-light: #94a3b8;
+                --border: #334155;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="install-prompt" id="installPrompt">
+        <div>
+            <strong>Установить приложение?</strong><br>
+            <small>Добавить на главный экран для быстрого доступа</small>
+        </div>
+        <div>
+            <button class="install-btn" id="installBtn">Установить</button>
+            <button class="install-btn" id="dismissBtn" style="margin-left: 10px;">Отмена</button>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <header class="header">
+            <h1>🗣️ Переводчик</h1>
+            <div class="language-switch">
+                <span class="language-label" id="sourceLabel">РУССКИЙ</span>
+                <button class="switch-btn" id="switchBtn" title="Переключить языки">⇄</button>
+                <span class="language-label" id="targetLabel">ESPAÑOL</span>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="status-bar">
+                <div class="status-text" id="statusText">Готов к работе</div>
+                <div class="listening-indicator" id="listeningIndicator" style="display: none;">
+                    <div class="pulse"></div>
+                    <span>Слушаю...</span>
+                </div>
+            </div>
+
+            <div class="conversation-area" id="conversationArea">
+                <div style="text-align: center; color: var(--text-light); margin-top: 50px;">
+                    <h3>👋 Добро пожаловать!</h3>
+                    <p style="margin-top: 10px;">Нажмите кнопку микрофона и начните говорить</p>
+                </div>
+            </div>
+
+            <div class="cache-info" id="cacheInfo">
+                Кэш: 0 переводов
+            </div>
+        </main>
+
+        <div class="controls">
+            <button class="control-btn listen-btn" id="listenBtn" title="Начать/остановить запись">
+                🎤
+            </button>
+            <button class="control-btn clear-btn" id="clearBtn" title="Очистить историю">
+                🗑️
+            </button>
+        </div>
+
+        <div class="partial-text" id="partialText" style="display: none;"></div>
+    </div>
+
+    <script>
+        class TranslatorPWA {
+            constructor() {
+                this.isListening = false;
+                this.recognition = null;
+                this.currentLang = 'ru'; // ru или es
+                this.cache = this.loadCache();
+                this.installPrompt = null;
+                
+                this.initElements();
+                this.initSpeechRecognition();
+                this.initPWA();
+                this.updateUI();
+                this.updateCacheInfo();
+            }
+
+            initElements() {
+                this.statusText = document.getElementById('statusText');
+                this.listeningIndicator = document.getElementById('listeningIndicator');
+                this.conversationArea = document.getElementById('conversationArea');
+                this.sourceLabel = document.getElementById('sourceLabel');
+                this.targetLabel = document.getElementById('targetLabel');
+                this.listenBtn = document.getElementById('listenBtn');
+                this.clearBtn = document.getElementById('clearBtn');
+                this.switchBtn = document.getElementById('switchBtn');
+                this.partialText = document.getElementById('partialText');
+                this.cacheInfo = document.getElementById('cacheInfo');
+
+                // Обработчики событий
+                this.listenBtn.addEventListener('click', () => this.toggleListening());
+                this.clearBtn.addEventListener('click', () => this.clearHistory());
+                this.switchBtn.addEventListener('click', () => this.switchLanguages());
+
+                // Предотвращение масштабирования на двойной тап
+                document.addEventListener('touchstart', (e) => {
+                    if (e.touches.length > 1) {
+                        e.preventDefault();
+                    }
+                });
+
+                let lastTouchEnd = 0;
+                document.addEventListener('touchend', (e) => {
+                    const now = (new Date()).getTime();
+                    if (now - lastTouchEnd <= 300) {
+                        e.preventDefault();
+                    }
+                    lastTouchEnd = now;
+                }, false);
+            }
+
+            initSpeechRecognition() {
+                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                    this.showError('Распознавание речи не поддерживается в вашем браузере');
+                    return;
+                }
+
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                this.recognition = new SpeechRecognition();
+
+                this.recognition.continuous = true;
+                this.recognition.interimResults = true;
+                this.recognition.maxAlternatives = 1;
+
+                this.recognition.onstart = () => {
+                    this.isListening = true;
+                    this.updateUI();
+                };
+
+                this.recognition.onend = () => {
+                    this.isListening = false;
+                    this.updateUI();
+                    this.hidePartialText();
+                };
+
+                this.recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                    this.isListening = false;
+                    this.updateUI();
+                    
+                    let errorMessage = 'Ошибка распознавания речи';
+                    switch(event.error) {
+                        case 'no-speech':
+                            errorMessage = 'Речь не обнаружена. Попробуйте еще раз';
+                            break;
+                        case 'network':
+                            errorMessage = 'Ошибка сети. Проверьте подключение к интернету';
+                            break;
+                        case 'not-allowed':
+                            errorMessage = 'Доступ к микрофону заблокирован. Разрешите доступ';
+                            break;
+                    }
+                    this.showError(errorMessage);
+                };
+
+                this.recognition.onresult = (event) => {
+                    let interimTranscript = '';
+                    let finalTranscript = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript;
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+
+                    if (interimTranscript) {
+                        this.showPartialText(interimTranscript);
+                    }
+
+                    if (finalTranscript.trim()) {
+                        this.hidePartialText();
+                        this.processText(finalTranscript.trim());
+                    }
+                };
+            }
+
+            initPWA() {
+                // Регистрация Service Worker
+                if ('serviceWorker' in navigator) {
+                    this.registerServiceWorker();
+                }
+
+                // Обработка установки PWA
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    this.installPrompt = e;
+                    this.showInstallPrompt();
+                });
+
+                // Установка обработчиков для промпта установки
+                document.getElementById('installBtn').addEventListener('click', () => {
+                    this.installApp();
+                });
+
+                document.getElementById('dismissBtn').addEventListener('click', () => {
+                    this.hideInstallPrompt();
+                });
+
+                // Генерация манифеста
+                this.generateManifest();
+            }
+
+            registerServiceWorker() {
+                const swCode = `
+                const CACHE_NAME = 'translator-pwa-v1';
+                const urlsToCache = [
+                    '/',
+                    '/index.html'
+                ];
+
+                self.addEventListener('install', (event) => {
+                    event.waitUntil(
+                        caches.open(CACHE_NAME)
+                            .then((cache) => cache.addAll(urlsToCache))
+                    );
+                });
+
+                self.addEventListener('fetch', (event) => {
+                    event.respondWith(
+                        caches.match(event.request)
+                            .then((response) => {
+                                if (response) {
+                                    return response;
+                                }
+                                return fetch(event.request);
+                            }
+                        )
+                    );
+                });
+                `;
+
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+
+                navigator.serviceWorker.register(swUrl)
+                    .then((registration) => {
+                        console.log('SW registered:', registration);
+                    })
+                    .catch((error) => {
+                        console.log('SW registration failed:', error);
+                    });
+            }
+
+            generateManifest() {
+                const manifest = {
+                    name: "Переводчик Русский-Испанский",
+                    short_name: "RU-ES Переводчик",
+                    description: "Голосовой переводчик с русского на испанский и обратно",
+                    start_url: "/",
+                    display: "standalone",
+                    orientation: "portrait",
+                    theme_color: "#2563eb",
+                    background_color: "#f8fafc",
+                    icons: [
+                        {
+                            src: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iNDAiIGZpbGw9IiMyNTYzZWIiLz4KPGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iNDAiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iOCIvPgo8cGF0aCBkPSJNNzYgOTZoNDBtLTIwLTIwdjQwIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjYiLz4KPC9zdmc+",
+                            sizes: "192x192",
+                            type: "image/svg+xml"
+                        },
+                        {
+                            src: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTAwIiBmaWxsPSIjMjU2M2ViIi8+CjxjaXJjbGUgY3g9IjI1NiIgY3k9IjI1NiIgcj0iMTAwIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIwIi8+CjxwYXRoIGQ9Ik0yMDYgMjU2aDEwMG0tNTAtNTB2MTAwIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjE2Ii8+Cjwvc3ZnPg==",
+                            sizes: "512x512",
+                            type: "image/svg+xml"
+                        }
+                    ]
+                };
+
+                const manifestBlob = new Blob([JSON.stringify(manifest)], {
+                    type: 'application/json'
+                });
+                const manifestUrl = URL.createObjectURL(manifestBlob);
+                document.getElementById('manifest-placeholder').href = manifestUrl;
+            }
+
+            showInstallPrompt() {
+                document.getElementById('installPrompt').classList.add('show');
+            }
+
+            hideInstallPrompt() {
+                document.getElementById('installPrompt').classList.remove('show');
+            }
+
+            async installApp() {
+                if (this.installPrompt) {
+                    this.installPrompt.prompt();
+                    const result = await this.installPrompt.userChoice;
+                    
+                    if (result.outcome === 'accepted') {
+                        console.log('PWA установлено');
+                    }
+                    
+                    this.installPrompt = null;
+                    this.hideInstallPrompt();
+                }
+            }
+
+            toggleListening() {
+                if (this.isListening) {
+                    this.stopListening();
+                } else {
+                    this.startListening();
+                }
+            }
+
+            startListening() {
+                if (!this.recognition) {
+                    this.showError('Распознавание речи недоступно');
+                    return;
+                }
+
+                // Устанавливаем язык
+                const lang = this.currentLang === 'ru' ? 'ru-RU' : 'es-ES';
+                this.recognition.lang = lang;
+
+                try {
+                    this.recognition.start();
+                } catch (error) {
+                    console.error('Error starting recognition:', error);
+                    this.showError('Не удалось начать распознавание');
+                }
+            }
+
+            stopListening() {
+                if (this.recognition && this.isListening) {
+                    this.recognition.stop();
+                }
+            }
+
+            async processText(text) {
+                console.log('Processing text:', text);
+                
+                // Добавляем исходное сообщение
+                this.addMessage(text, this.currentLang, 'original');
+                
+                // Переводим
+                const targetLang = this.currentLang === 'ru' ? 'es' : 'ru';
+                const translation = await this.translateText(text, this.currentLang, targetLang);
+                
+                if (translation) {
+                    this.addMessage(translation, targetLang, 'translation');
+                } else {
+                    this.showError('Не удалось перевести текст');
+                }
+            }
+
+            async translateText(text, fromLang, toLang) {
+                // Проверяем кэш
+                const cacheKey = this.getCacheKey(text, fromLang, toLang);
+                const cached = this.cache[cacheKey];
+                
+                if (cached && this.isCacheValid(cached)) {
+                    cached.accessCount = (cached.accessCount || 0) + 1;
+                    cached.lastAccess = new Date().toISOString();
+                    this.saveCache();
+                    this.updateCacheInfo();
+                    return cached.translation;
+                }
+
+                // API запрос
+                try {
+                    const url = 'https://api.mymemory.translated.net/get';
+                    const params = new URLSearchParams({
+                        q: text,
+                        langpair: `${fromLang}|${toLang}`,
+                        de: 'translator@example.com'
+                    });
+
+                    const response = await fetch(`${url}?${params}`, {
+                        method: 'GET',
+                        timeout: 8000
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data.responseStatus === 200) {
+                        const translation = data.responseData.translatedText;
+                        
+                        // Сохраняем в кэш
+                        this.cache[cacheKey] = {
+                            translation: translation,
+                            timestamp: new Date().toISOString(),
+                            accessCount: 1,
+                            lastAccess: new Date().toISOString()
+                        };
+                        
+                        this.cleanCache();
+                        this.saveCache();
+                        this.updateCacheInfo();
+                        
+                        return translation;
+                    }
+                } catch (error) {
+                    console.error('Translation error:', error);
+                }
+                
+                return null;
+            }
+
+            getCacheKey(text, fromLang, toLang) {
+                const normalizedText = text.toLowerCase().trim().replace(/\s+/g, ' ');
+                const cacheString = `${normalizedText}_${fromLang}_${toLang}`;
+                
+                // Простая хэш-функция
+                let hash = 0;
+                for (let i = 0; i < cacheString.length; i++) {
+                    const char = cacheString.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash; // 32-битное число
+                }
+                
+                return hash.toString(36);
+            }
+
+            isCacheValid(cacheEntry) {
+                const cacheDate = new Date(cacheEntry.timestamp);
+                const now = new Date();
+                const daysDiff = (now - cacheDate) / (1000 * 60 * 60 * 24);
+                
+                return daysDiff < 7; // 7 дней
+            }
+
+            cleanCache() {
+                const maxSize = 500;
+                const entries = Object.entries(this.cache);
+                
+                if (entries.length <= maxSize) return;
+                
+                // Сортируем по времени последнего доступа
+                entries.sort((a, b) => {
+                    const timeA = new Date(a[1].lastAccess || a[1].timestamp);
+                    const timeB = new Date(b[1].lastAccess || b[1].timestamp);
+                    return timeA - timeB;
+                });
+                
+                // Удаляем старые записи
+                const toRemove = entries.length - maxSize;
+                for (let i = 0; i < toRemove; i++) {
+                    delete this.cache[entries[i][0]];
+                }
+            }
+
+            loadCache() {
+                try {
+                    const cached = localStorage.getItem('translator_cache');
+                    return cached ? JSON.parse(cached) : {};
+                } catch (error) {
+                    console.error('Error loading cache:', error);
+                    return {};
+                }
+            }
+
+            saveCache() {
+                try {
+                    localStorage.setItem('translator_cache', JSON.stringify(this.cache));
+                } catch (error) {
+                    console.error('Error saving cache:', error);
+                }
+            }
+
+            addMessage(text, lang, type) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${type === 'original' ? 'listening' : ''}`;
+                
+                const isRussian = lang === 'ru';
+                const headerClass = isRussian ? 'russian' : 'spanish';
+                const headerText = isRussian ? '🇷🇺 Русский' : '🇪🇸 Español';
+                
+                messageDiv.innerHTML = `
+                    <div class="message-header ${headerClass}">
+                        ${headerText}
+                    </div>
+                    <div class="message-content">${text}</div>
+                `;
+                
+                // Удаляем приветственное сообщение
+                const welcomeMsg = this.conversationArea.querySelector('div[style*="text-align: center"]');
+                if (welcomeMsg) {
+                    welcomeMsg.remove();
+                }
+                
+                this.conversationArea.appendChild(messageDiv);
+                
+                // Прокручиваем к новому сообщению
+                messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                
+                // Убираем эффект "listening" через секунду
+                if (type === 'original') {
+                    setTimeout(() => {
+                        messageDiv.classList.remove('listening');
+                    }, 1000);
+                }
+            }
+
+            switchLanguages() {
+                this.currentLang = this.currentLang === 'ru' ? 'es' : 'ru';
+                this.updateUI();
+                
+                // Показываем уведомление
+                this.showSuccess(`Переключено на ${this.currentLang === 'ru' ? 'русский' : 'испанский'}`);
+            }
+
+            clearHistory() {
+                this.conversationArea.innerHTML = `
+                    <div style="text-align: center; color: var(--text-light); margin-top: 50px;">
+                        <h3>👋 Добро пожаловать!</h3>
+                        <p style="margin-top: 10px;">Нажмите кнопку микрофона и начните говорить</p>
+                    </div>
+                `;
+                this.showSuccess('История очищена');
+            }
+
+            showPartialText(text) {
+                this.partialText.textContent = text;
+                this.partialText.style.display = 'block';
+            }
+
+            hidePartialText() {
+                this.partialText.style.display = 'none';
+            }
+
+            showError(message) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error';
+                errorDiv.textContent = message;
+                
+                this.conversationArea.appendChild(errorDiv);
+                errorDiv.scrollIntoView({ behavior: 'smooth' });
+                
+                setTimeout(() => {
+                    errorDiv.remove();
+                }, 5000);
+            }
+
+            showSuccess(message) {
+                const successDiv = document.createElement('div');
+                successDiv.className = 'success';
+                successDiv.textContent = message;
+                
+                document.querySelector('.main-content').insertBefore(
+                    successDiv, 
+                    this.conversationArea
+                );
+                
+                setTimeout(() => {
+                    successDiv.remove();
+                }, 3000);
+            }
+
+            updateUI() {
+                // Обновляем кнопку прослушивания
+                if (this.isListening) {
+                    this.listenBtn.classList.add('listening');
+                    this.listenBtn.textContent = '⏹️';
+                    this.statusText.textContent = 'Слушаю...';
+                    this.listeningIndicator.style.display = 'flex';
+                } else {
+                    this.listenBtn.classList.remove('listening');
+                    this.listenBtn.textContent = '🎤';
+                    this.statusText.textContent = 'Готов к работе';
+                    this.listeningIndicator.style.display = 'none';
+                }
+                
+                // Обновляем метки языков
+                if (this.currentLang === 'ru') {
+                    this.sourceLabel.textContent = 'РУССКИЙ';
+                    this.targetLabel.textContent = 'ESPAÑOL';
+                } else {
+                    this.sourceLabel.textContent = 'ESPAÑOL';
+                    this.targetLabel.textContent = 'РУССКИЙ';
+                }
+            }
+
+            updateCacheInfo() {
+                const cacheSize = Object.keys(this.cache).length;
+                const totalAccess = Object.values(this.cache)
+                    .reduce((sum, entry) => sum + (entry.accessCount || 1), 0);
+                
+                this.cacheInfo.textContent = `Кэш: ${cacheSize} переводов, ${totalAccess} обращений`;
+            }
+        }
+
+        // Запуск приложения
+        document.addEventListener('DOMContentLoaded', () => {
+            new TranslatorPWA();
+        });
+
+        // Предотвращение случайного обновления страницы
+        window.addEventListener('beforeunload', (e) => {
+            if (window.translator && window.translator.isListening) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    </script>
+</body>
+</html>
